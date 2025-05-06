@@ -1,0 +1,74 @@
+[gd_scene load_steps=14 format=3 uid="uid://brm7ux3e1fhup"]
+
+[ext_resource type="Script" uid="uid://cl1ff5e7tysm6" path="res://Scripts/character.gd" id="1_r0x5m"]
+[ext_resource type="Texture2D" uid="uid://b2actnkmso6wt" path="res://Sprites/testtilemap.png" id="1_xkndl"]
+[ext_resource type="Texture2D" uid="uid://cmcryvatj16e4" path="res://Sprites/buildingjob.png" id="2_sb48q"]
+[ext_resource type="Script" uid="uid://vdrq8el1bhu8" path="res://Scripts/Building.gd" id="2_u44n3"]
+[ext_resource type="PackedScene" uid="uid://cur3nlm83ldwu" path="res://room_data.tscn" id="4_sb48q"]
+[ext_resource type="Texture2D" uid="uid://uo8spo4opnk" path="res://Sprites/icon.svg" id="5_t88pq"]
+[ext_resource type="Texture2D" uid="uid://conuvgn2jmndn" path="res://Sprites/stars.png" id="6_3mrqo"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r0x5m"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sb48q"]
+texture = ExtResource("1_xkndl")
+0:0/0 = 0
+1:0/0 = 0
+1:0/0/custom_data_0 = 1
+0:1/0 = 0
+1:1/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_t88pq"]
+texture = ExtResource("2_sb48q")
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_t88pq"]
+custom_data_layer_0/name = "type"
+custom_data_layer_0/type = 2
+sources/0 = SubResource("TileSetAtlasSource_sb48q")
+sources/1 = SubResource("TileSetAtlasSource_t88pq")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_r0x5m"]
+texture = ExtResource("2_sb48q")
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_3mrqo"]
+sources/0 = SubResource("TileSetAtlasSource_r0x5m")
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Character" type="CharacterBody2D" parent="."]
+position = Vector2(200, 200)
+script = ExtResource("1_r0x5m")
+
+[node name="Sprite2D" type="Sprite2D" parent="Character"]
+z_index = 2
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("5_t88pq")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Character"]
+shape = SubResource("RectangleShape2D_r0x5m")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+z_index = 1
+tile_set = SubResource("TileSet_t88pq")
+script = ExtResource("2_u44n3")
+
+[node name="BuildUIMap" type="TileMapLayer" parent="TileMapLayer"]
+z_index = 3
+tile_set = SubResource("TileSet_3mrqo")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(256, 256)
+
+[node name="Sprite2D" type="Sprite2D" parent="Camera2D"]
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("6_3mrqo")
+
+[node name="RoomData" parent="." instance=ExtResource("4_sb48q")]
