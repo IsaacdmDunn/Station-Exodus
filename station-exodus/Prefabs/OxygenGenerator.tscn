@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://627f4igrveho"]
+
+[ext_resource type="Script" uid="uid://csvvkg84qmrsq" path="res://Scripts/OxygenGeneratorBuilding.gd" id="1_3dhcc"]
+[ext_resource type="Texture2D" uid="uid://uo8spo4opnk" path="res://Sprites/icon.svg" id="2_sf7io"]
+
+[node name="OxygenGenerator" type="Node2D"]
+script = ExtResource("1_3dhcc")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 1
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("2_sf7io")

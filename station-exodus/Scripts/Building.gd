@@ -11,6 +11,7 @@ var CurrentBuildDirection = BuildDirection.Up
 
 var roomDataPrefab = preload("res://room_data.tscn")
 var subRoomScript = preload("res://Scripts/SubroomData.gd")
+var O2Gen = preload("res://Prefabs/OxygenGenerator.tscn")
 
 var startingPos: Vector2i = Vector2i(-1000,-1000)
 var endingPos: Vector2i
@@ -21,6 +22,8 @@ var buildSubroomToID = -1
 var maxMapSize = Vector2i(256,256)
 
 var aStar = AStarGrid2D.new()
+
+var buildingToBuild
 
 func _ready() -> void:
 	#update a star with init values
@@ -33,37 +36,41 @@ func _process(delta: float) -> void:
 	#clear build tile map and set sursor
 	$BuildUIMap.clear()
 	$BuildUIMap.set_cell(local_to_map(get_global_mouse_position()) - Vector2i(0,0),0, Vector2i(0,0))
-	
-	#if building room show building UI
-	if startingPos != Vector2i(-1000,-1000) and CurrentBuildState == BuildState.Room:
-		buildingUI(Vector2i(mini(startingPos.x, local_to_map(get_global_mouse_position()).x), mini(startingPos.y, local_to_map(get_global_mouse_position()).y)), Vector2i(maxi(startingPos.x, local_to_map(get_global_mouse_position()).x), maxi(startingPos.y, local_to_map(get_global_mouse_position()).y)))
-	#if building door show door building UI
-	elif CurrentBuildState == BuildState.Door:
-		CreateDoorUI(local_to_map(get_global_mouse_position()))
+	if CurrentBuildState != BuildState.None:
+		#if building room show building UI
+		if startingPos != Vector2i(-1000,-1000) and CurrentBuildState == BuildState.Room:
+			buildingUI(Vector2i(mini(startingPos.x, local_to_map(get_global_mouse_position()).x), mini(startingPos.y, local_to_map(get_global_mouse_position()).y)), Vector2i(maxi(startingPos.x, local_to_map(get_global_mouse_position()).x), maxi(startingPos.y, local_to_map(get_global_mouse_position()).y)))
+		#if building door show door building UI
+		elif CurrentBuildState == BuildState.Door:
+			CreateDoorUI(local_to_map(get_global_mouse_position()))
+		elif CurrentBuildState == BuildState.SmallBasicBuilding and buildingToBuild == O2Gen:
+			SmallBuildingUI(local_to_map(get_global_mouse_position()))
 
 func _input(event: InputEvent) -> void:	
 	#selects build options
 	SelectBuildingState(event)
 	#if build room attempted
-	if CurrentBuildState == BuildState.Room and Input.is_action_just_pressed("Select"):
-		#starting pos for the drag and build system
-		if startingPos == Vector2i(-1000,-1000):
-			startingPos = local_to_map(get_global_mouse_position())
-			$BuildUIMap.clear()
+	if Input.is_action_just_pressed("Select"):
+		if CurrentBuildState == BuildState.Room:
+			#starting pos for the drag and build system
+			if startingPos == Vector2i(-1000,-1000):
+				startingPos = local_to_map(get_global_mouse_position())
+				$BuildUIMap.clear()
 		
-		#if select while building room set end point and if can build room then fill floor
-		elif startingPos != Vector2i(-1000,-1000):
-			endingPos = local_to_map(get_global_mouse_position())
-			#set_cell(local_to_map(get_global_mouse_position()),0, Vector2i(0,0))
+			#if select while building room set end point and if can build room then fill floor
+			elif startingPos != Vector2i(-1000,-1000):
+				endingPos = local_to_map(get_global_mouse_position())
+				#set_cell(local_to_map(get_global_mouse_position()),0, Vector2i(0,0))
 			
-			if canBuild or roomAlreadyExists:
-				fillFloor(Vector2i(mini(startingPos.x, endingPos.x), mini(startingPos.y, endingPos.y)), Vector2i(maxi(startingPos.x, endingPos.x), maxi(startingPos.y, endingPos.y)))
+				if canBuild or roomAlreadyExists:
+					fillFloor(Vector2i(mini(startingPos.x, endingPos.x), mini(startingPos.y, endingPos.y)), Vector2i(maxi(startingPos.x, endingPos.x), maxi(startingPos.y, endingPos.y)))
 			
-			startingPos = Vector2i(-1000,-1000) # reset start pos
-	#if can build door then create door at pos
-	elif CurrentBuildState == BuildState.Door and Input.is_action_just_pressed("Select") and canBuild:
-		CreateDoor(local_to_map(get_global_mouse_position()))
-		
+				startingPos = Vector2i(-1000,-1000) # reset start pos
+		#if can build door then create door at pos
+		elif CurrentBuildState == BuildState.Door and canBuild:
+			CreateDoor(local_to_map(get_global_mouse_position()))
+		elif CurrentBuildState == BuildState.SmallBasicBuilding and buildingToBuild == O2Gen:
+			CreateO2Gen(local_to_map(get_global_mouse_position()))
 #creates new room	
 func fillFloor(start, end):
 	var size = Vector2i(end.x - start.x, end.y - start.y) #sets start for loop from left to right
@@ -289,5 +296,30 @@ func SelectBuildingState(event: InputEvent):
 		CurrentBuildState = BuildState.Room
 	elif Input.is_action_just_pressed("CreateDoorShortcut"):
 		CurrentBuildState = BuildState.Door
+	elif Input.is_action_just_pressed("CreateO2Gen"):
+		CurrentBuildState = BuildState.SmallBasicBuilding
+		buildingToBuild = O2Gen
+	pass
+	
+func SmallBuildingUI(pos):
+	
+	if CheckRoomExists(pos):
+		if get_cell_atlas_coords(pos) == Vector2i(0,0) and get_cell_atlas_coords(Vector2i(pos.x, pos.y+1)) == Vector2i(0,0):
+			$BuildUIMap.set_cell(Vector2i(pos.x, pos.y),0, Vector2i(0,0))
+			$BuildUIMap.set_cell(Vector2i(pos.x, pos.y+1),0, Vector2i(1,1))
+			canBuild = true
+	else:
+		$BuildUIMap.set_cell(Vector2i(pos.x, pos.y),0, Vector2i(1,0))
+		$BuildUIMap.set_cell(Vector2i(pos.x, pos.y+1),0, Vector2i(1,0))
+		canBuild = false
+	
+func CreateO2Gen(pos):
+	if CheckRoomExists(pos) and get_cell_atlas_coords(pos) == Vector2i(0,0):
+		set_cell(Vector2i(pos.x, pos.y),0, Vector2i(0,1))
+		var buildingToAdd = O2Gen.instantiate()
+		buildingToAdd.roomID = buildSubroomToID
+		buildingToAdd.buildingRotation = CurrentBuildDirection
+		$"../BuildingContainer".add_child(buildingToAdd)
+		buildingToAdd.position = map_to_local(pos)
 	pass
 	

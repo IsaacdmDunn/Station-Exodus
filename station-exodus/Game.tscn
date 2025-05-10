@@ -1,10 +1,9 @@
-[gd_scene load_steps=14 format=3 uid="uid://brm7ux3e1fhup"]
+[gd_scene load_steps=13 format=3 uid="uid://brm7ux3e1fhup"]
 
 [ext_resource type="Script" uid="uid://cl1ff5e7tysm6" path="res://Scripts/character.gd" id="1_r0x5m"]
 [ext_resource type="Texture2D" uid="uid://b2actnkmso6wt" path="res://Sprites/testtilemap.png" id="1_xkndl"]
 [ext_resource type="Texture2D" uid="uid://cmcryvatj16e4" path="res://Sprites/buildingjob.png" id="2_sb48q"]
 [ext_resource type="Script" uid="uid://vdrq8el1bhu8" path="res://Scripts/Building.gd" id="2_u44n3"]
-[ext_resource type="PackedScene" uid="uid://cur3nlm83ldwu" path="res://room_data.tscn" id="4_sb48q"]
 [ext_resource type="Texture2D" uid="uid://uo8spo4opnk" path="res://Sprites/icon.svg" id="5_t88pq"]
 [ext_resource type="Texture2D" uid="uid://conuvgn2jmndn" path="res://Sprites/stars.png" id="6_3mrqo"]
 
@@ -43,13 +42,15 @@ sources/0 = SubResource("TileSetAtlasSource_r0x5m")
 
 [node name="Node2D" type="Node2D"]
 
+[node name="BuildingContainer" type="Node" parent="."]
+
 [node name="Character" type="CharacterBody2D" parent="."]
 position = Vector2(200, 200)
 script = ExtResource("1_r0x5m")
 
 [node name="Sprite2D" type="Sprite2D" parent="Character"]
 z_index = 2
-scale = Vector2(0.1, 0.1)
+scale = Vector2(0.25, 0.25)
 texture = ExtResource("5_t88pq")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Character"]
@@ -70,5 +71,3 @@ position = Vector2(256, 256)
 [node name="Sprite2D" type="Sprite2D" parent="Camera2D"]
 scale = Vector2(1.25, 1.25)
 texture = ExtResource("6_3mrqo")
-
-[node name="RoomData" parent="." instance=ExtResource("4_sb48q")]

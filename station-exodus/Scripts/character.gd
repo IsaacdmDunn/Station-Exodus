@@ -2,7 +2,11 @@ extends CharacterBody2D
 
 @onready var tilemap = $"../TileMapLayer"
 var currentPath: Array[Vector2i]
-var moveSpeed = 1.33
+var moveSpeed: float = 1.33
+
+var spaceSuit: bool = false
+
+
 func _process(delta: float) -> void:
 	moveCharacter()
 	
@@ -26,4 +30,6 @@ func moveCharacter():
 	if global_position == targetPos:
 		currentPath.pop_front()
 	pass
+	
+func jobSystem():
 	
